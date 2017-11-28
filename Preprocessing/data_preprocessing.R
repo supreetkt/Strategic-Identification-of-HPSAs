@@ -91,6 +91,8 @@ master_data$All_Death[which(master_data$All_Death == -1111.1)] <- NA
 master_data$Health_Status[which(master_data$Health_Status == -1111.1)] <- NA
 master_data$ALE[which(master_data$ALE == -2222.2)] <- NA
 
+#Master
+
 master_data <- master_data[c(-1,-2,-3,-4,-6)]
 
 state_labels <- master_data[1]
