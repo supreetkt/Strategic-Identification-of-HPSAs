@@ -3,7 +3,7 @@ import numpy as np
 from sklearn import datasets
 from sklearn.naive_bayes import GaussianNB
 
-df = pd.read_csv('../Preprocessed_Data/master.csv', skipinitialspace=True)
+df = pd.read_csv('../Preprocessing/master.csv', skipinitialspace=True)
 
 target_arttibute = ['HPSA_Ind']
 # 'State_FIPS_Code', 'County_FIPS_Code', 'CHSI_County_Name',	'CHSI_State_Name',
