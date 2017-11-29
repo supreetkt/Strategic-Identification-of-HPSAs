@@ -1,112 +1,3 @@
-#-----------------------------------Checkpoint - I - Data Analytics and Explorations-----------------------------------------------------------
-
-install.packages('dplyr')
-library(dplyr)
-install.packages('missForest')
-library(missForest)
-
-#Load the Bank Data Set
-#risk data
-risk_data <- read.csv("D:/ML/ML Project/RISKFACTORSANDACCESSTOCARE.csv")
-
-risk_data <- risk_data[c(1:7,10,13,16,19,22,25:31)]
-
-# preventive service
-preventive_data <- read.csv("D:/ML/ML Project/PreventiveService.csv")
-
-preventive_data <- preventive_data[c(1:7,11,15,19,23,27,31,35:39)]
-
-#VUNERABLE POPS AND ENV HEALTH
-vulnerable_data <- read.csv("D:/ML/ML Project/VUNERABLEPOPSANDENVHEALTH.csv")
-
-#MEASURESOFBIRTHANDDEATH
-
-birthdeath_data <- read.csv("D:/ML/ML Project/MEASURESOFBIRTHANDDEATH.csv")
-birthdeath_data <- birthdeath_data[c(1:6,19,49, 85, 91,97)]
-
-#SUMMARYMEASURESOFHEALTH
-
-health_measure_data <- read.csv("D:/ML/ML Project/SUMMARYMEASURESOFHEALTH.csv")
-health_measure_data <- health_measure_data[c(1:7,11,17)]
-
-
-
-library(plyr)
-
-master_data <- join_all(list(risk_data,preventive_data,vulnerable_data,birthdeath_data,health_measure_data), 
-                        by=c("State_FIPS_Code", "County_FIPS_Code","CHSI_County_Name","CHSI_State_Name",
-                             "CHSI_State_Abbr","Strata_ID_Number"), type='left')
-
-summary(master_data)
-
-str(master_data)
-sum(is.na(master_data$Recent_Drug_Use))
-
-write.csv(master_data,file = "master.csv")
-
-####--------DATA LOADING--------------------#####
-
-master_data <- read.csv("master.csv")
-
-master_data$HPSA_Ind <- as.factor(master_data$HPSA_Ind)
-str(master_data$HPSA_Ind)
-summary(master_data$HPSA_Ind)
-
-master_data$No_Exercise[which(master_data$No_Exercise == -1111.1)] <- NA
-master_data$Obesity[which(master_data$Obesity == -1111.1)] <- NA
-master_data$High_Blood_Pres[which(master_data$High_Blood_Pres == -1111.1)] <- NA
-master_data$Smoker[which(master_data$Smoker == -1111.1)] <- NA
-master_data$Diabetes[which(master_data$Diabetes == -1111.1)] <- NA
-master_data$Uninsured[which(master_data$Uninsured == -2222)] <- NA
-master_data$Elderly_Medicare[which(master_data$Elderly_Medicare == -2222)] <- NA
-master_data$Disabled_Medicare[which(master_data$Disabled_Medicare == -2222)] <- NA
-master_data$Dentist_Rate[which(master_data$Dentist_Rate == -2222.2)] <- NA
-master_data$Influenzae[which(master_data$Influenzae == -2224)] <- NA
-master_data$HepA[which(master_data$HepA == -2224)] <- NA
-master_data$HepB[which(master_data$HepB == -2224)] <- NA
-master_data$Measeles[which(master_data$Measeles == -2224)] <- NA
-master_data$Influenzae[which(master_data$Influenzae == -2224)] <- NA
-master_data$Pertusis[which(master_data$Pertusis == -2224)] <- NA
-master_data$Congential.Rubella[which(master_data$Congential.Rubella == -2224)] <- NA
-master_data$Syphilis[which(master_data$Syphilis == -2224)] <- NA
-master_data$Unemployed[which(master_data$Unemployed == -2222)] <- NA
-master_data$Unemployed[which(master_data$Unemployed == -9999)] <- NA
-master_data$Sev_Work_Disabled[which(master_data$Sev_Work_Disabled == -2222)] <- NA
-master_data$Ecol[which(master_data$Ecol == -2224)] <- NA
-master_data$Salmonella[which(master_data$Salmonella == -2224)] <- NA
-master_data$Shig[which(master_data$Shig == -2224)] <- NA
-master_data$Toxic_Chem[which(master_data$Toxic_Chem == -2222)] <- NA
-master_data$Premature[which(master_data$Premature == -2222.2)] <- NA
-master_data$Premature[which(master_data$Premature == -1111.1)] <- NA
-master_data$Infant_Mortality[which(master_data$Infant_Mortality == -2222.2)] <- NA
-master_data$Infant_Mortality[which(master_data$Infant_Mortality == -1111.1)] <- NA
-master_data$Brst_Cancer[which(master_data$Brst_Cancer == -2222.2)] <- NA
-master_data$Brst_Cancer[which(master_data$Brst_Cancer == -1111.1)] <- NA
-master_data$Col_Cancer[which(master_data$Col_Cancer == -2222.2)] <- NA
-master_data$Col_Cancer[which(master_data$Col_Cancer == -1111.1)] <- NA
-master_data$CHD[which(master_data$CHD == -2222.2)] <- NA
-master_data$CHD[which(master_data$CHD == -1111.1)] <- NA
-master_data$All_Death[which(master_data$All_Death == -2222.2)] <- NA
-master_data$All_Death[which(master_data$All_Death == -1111.1)] <- NA
-master_data$Health_Status[which(master_data$Health_Status == -1111.1)] <- NA
-master_data$ALE[which(master_data$ALE == -2222.2)] <- NA
-
-#Master
-
-master_data <- master_data[c(-1,-2,-3,-4,-6)]
-
-state_labels <- master_data[1]
-master_forest <- missForest(master_data[-1])
-
-master_forest$OOBerror
-
-master_data <- master_forest$ximp
-
-master_data <- cbind(state_labels,master_data)
-
-
-write.csv(master,file = "master_final1.csv")
-
 
 ##########--------------------############
 
@@ -378,18 +269,18 @@ summary(model_9)
 vif(model_9)
 
 model_10 <- glm(formula = HPSA_Ind ~ Obesity + Uninsured  + Prim_Care_Phys_Rate + Dentist_Rate + 
-                             Recent_Drug_Use + Ecol + Salmonella + Shig + Col_Cancer + master_data.CHSI_State_AbbrAR + 
-                             master_data.CHSI_State_AbbrGA + master_data.CHSI_State_AbbrIA + master_data.CHSI_State_AbbrIL + 
-                             master_data.CHSI_State_AbbrIN + master_data.CHSI_State_AbbrKS + 
-                             master_data.CHSI_State_AbbrKY + master_data.CHSI_State_AbbrLA + master_data.CHSI_State_AbbrMO + 
-                             master_data.CHSI_State_AbbrNC + 
-                             master_data.CHSI_State_AbbrNE + master_data.CHSI_State_AbbrOH + 
-                             master_data.CHSI_State_AbbrOK + master_data.CHSI_State_AbbrPA + 
-                             master_data.CHSI_State_AbbrSD + 
-                             master_data.CHSI_State_AbbrTN + master_data.CHSI_State_AbbrTX 
-                              + master_data.CHSI_State_AbbrVA + 
-                             master_data.CHSI_State_AbbrWV + master_data.CHSI_State_AbbrWY, 
-                           family = "binomial", data = train)
+                  Recent_Drug_Use + Ecol + Salmonella + Shig + Col_Cancer + master_data.CHSI_State_AbbrAR + 
+                  master_data.CHSI_State_AbbrGA + master_data.CHSI_State_AbbrIA + master_data.CHSI_State_AbbrIL + 
+                  master_data.CHSI_State_AbbrIN + master_data.CHSI_State_AbbrKS + 
+                  master_data.CHSI_State_AbbrKY + master_data.CHSI_State_AbbrLA + master_data.CHSI_State_AbbrMO + 
+                  master_data.CHSI_State_AbbrNC + 
+                  master_data.CHSI_State_AbbrNE + master_data.CHSI_State_AbbrOH + 
+                  master_data.CHSI_State_AbbrOK + master_data.CHSI_State_AbbrPA + 
+                  master_data.CHSI_State_AbbrSD + 
+                  master_data.CHSI_State_AbbrTN + master_data.CHSI_State_AbbrTX 
+                + master_data.CHSI_State_AbbrVA + 
+                  master_data.CHSI_State_AbbrWV + master_data.CHSI_State_AbbrWY, 
+                family = "binomial", data = train)
 
 summary(model_10)
 
@@ -408,13 +299,71 @@ model_11 <- glm(formula = HPSA_Ind ~ Obesity + Uninsured  + Prim_Care_Phys_Rate 
                   master_data.CHSI_State_AbbrWV + master_data.CHSI_State_AbbrWY, 
                 family = "binomial", data = train)
 
+summary(model_11)
 
+model_12 <- glm(formula = HPSA_Ind ~ Obesity + Uninsured  + Prim_Care_Phys_Rate + Dentist_Rate + 
+                  Recent_Drug_Use + Ecol  + Shig + Col_Cancer + master_data.CHSI_State_AbbrAR + 
+                  master_data.CHSI_State_AbbrGA + master_data.CHSI_State_AbbrIA + 
+                  master_data.CHSI_State_AbbrIN + master_data.CHSI_State_AbbrKS + 
+                  master_data.CHSI_State_AbbrKY + master_data.CHSI_State_AbbrLA + master_data.CHSI_State_AbbrMO + 
+                  master_data.CHSI_State_AbbrNC + 
+                  master_data.CHSI_State_AbbrNE + 
+                  master_data.CHSI_State_AbbrOK + master_data.CHSI_State_AbbrPA + 
+                  master_data.CHSI_State_AbbrSD + 
+                  master_data.CHSI_State_AbbrTN + master_data.CHSI_State_AbbrTX 
+                + master_data.CHSI_State_AbbrVA + 
+                  master_data.CHSI_State_AbbrWV + master_data.CHSI_State_AbbrWY, 
+                family = "binomial", data = train)
 
-final_model <- model_5
+summary(model_12)
+vif(model_12)
+
+model_13 <- glm(formula = HPSA_Ind ~ Obesity + Uninsured  + Prim_Care_Phys_Rate + Dentist_Rate + 
+                  Recent_Drug_Use + Ecol  + Shig  + master_data.CHSI_State_AbbrAR + 
+                  master_data.CHSI_State_AbbrGA + master_data.CHSI_State_AbbrIA + 
+                  master_data.CHSI_State_AbbrIN + master_data.CHSI_State_AbbrKS + 
+                  master_data.CHSI_State_AbbrKY + master_data.CHSI_State_AbbrLA + master_data.CHSI_State_AbbrMO + 
+                  master_data.CHSI_State_AbbrNC + 
+                  master_data.CHSI_State_AbbrNE + 
+                  master_data.CHSI_State_AbbrOK + master_data.CHSI_State_AbbrPA + 
+                  master_data.CHSI_State_AbbrSD + 
+                  master_data.CHSI_State_AbbrTN + master_data.CHSI_State_AbbrTX 
+                + master_data.CHSI_State_AbbrVA + 
+                  master_data.CHSI_State_AbbrWV + master_data.CHSI_State_AbbrWY, 
+                family = "binomial", data = train)
+
+summary(model_13)
+vif(model_13)
+
+final_model <- model_13
 
 
 train$predict_prob <- predict(final_model, type = "response")
 
 
 test$predict_prob <- predict(final_model, newdata = test, type = "response")
+
+library(ROCR)
+
+model_score <- prediction(train$predict_prob, train$HPSA_Ind)
+model_perf <- performance(model_score, "tpr", "fpr")
+
+
+model_score_test <- prediction(test$predict_prob, test$HPSA_Ind)
+model_perf_test <- performance(model_score_test, "tpr","fpr")
+
+
+
+plot(model_perf,col = "red", lab = c(10,10,7))
+
+
+
+library(caret)
+
+confusionMatrix(as.numeric(train$predict_prob > 0.6),train$HPSA_Ind, positive = "1")
+confusionMatrix(as.numeric(test$predict_prob > 0.6),test$HPSA_Ind, positive = "1")
+
+
+
+
 
