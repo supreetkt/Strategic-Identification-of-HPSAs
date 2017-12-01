@@ -54,9 +54,14 @@ df = shuffle(df)
 HPSA_input = df.drop('HPSA_Ind', axis=1)
 HPSA_target = df.HPSA_Ind
 
-X_train, X_test, Y_train, Y_test = train_test_split(HPSA_input, HPSA_target, test_size=0.3, random_state=24, stratify=HPSA_target)
+X_train, X_test, Y_train, Y_test = train_test_split(HPSA_input, HPSA_target,
+                                                    test_size=0.3,
+                                                    random_state=24,
+                                                    stratify=HPSA_target)
 
-model = RandomForestClassifier(max_depth=20, random_state=0)
+model = RandomForestClassifier(max_depth=20,
+                               max_features="auto",
+                               n_estimators=1000)
 model.fit(X_train, Y_train)
 
 score = model.score(X_test, Y_test)
