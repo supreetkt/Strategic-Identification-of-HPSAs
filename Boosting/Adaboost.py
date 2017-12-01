@@ -1,17 +1,13 @@
-# Boosting
+# Adaboost
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import AdaBoostClassifier,GradientBoostingClassifier
-# from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import cross_val_score
-# from sklearn.model_selection import cross_val_predict
-# from xgboost import XGBClassifier
-# from sklearn import model_selection
-from sklearn.model_selection import train_test_split
-# from sklearn.metrics import accuracy_score
-from sklearn.utils import shuffle
-from sklearn.metrics import confusion_matrix, auc, roc_curve
 import matplotlib.pyplot as plt
+from sklearn.utils import shuffle
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix, auc, roc_curve
+
 
 #1=No, 2=Yes in the dataset
 def convert_target_label(x):
@@ -58,13 +54,17 @@ for i in df.columns:
 
 df = pd.concat([df, HPSA_Ind_df], axis=1) #90 columns
 
-#apply algorithm - 1. Adaboost
+#define datasets and class labels X, Y
 array = df.values
 X = array[:,0:89]
 Y = array[:,89]
-num_trees = 100
 
+#split into train and test
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.25, random_state=42, stratify = Y)
+
+#apply algorithm - 1. Adaboost
+num_trees = 100
+seed = 7
 
 adaboost = AdaBoostClassifier(n_estimators=num_trees, learning_rate=1, random_state = seed)
 cross = cross_val_score(adaboost, X_train, Y_train, cv=10)
@@ -97,11 +97,14 @@ classification_error = (FP + FN) / float(TP + TN + FP + FN)*100
 #Sensitivity/True Positive Rate/Recall
 sensitivity = TP / float(FN + TP)*100 #or recall_score
 
-#Specificity
+#Specificity/True Negative Rate
 specificity = TN / float(TN + FP)*100
 
 #False Positive Rate: When the actual value is negative, how often is the prediction incorrect?
 false_positive_rate = FP / float(TN + FP)*100
+
+#False Negative Rate: When the actual value is positive, how often is the prediction incorrect?
+false_negative_rate = FN / float(FN + TP)*100
 
 #Precision
 precision = TP / float(TP + FP)*100
@@ -117,10 +120,13 @@ print('Adaboost-----------------------------------')
 print('Number of 0s in Target = %.2f %%' %zeroes)
 print('Number of 1s in Target = %.2f %%' % ones)
 print('Null Accuracy = %.2f %%' % null_accuracy)
+print('Confusion matrix (TN, FP, FN, TP): (' +str(TN) + ', ' + str(FP) + ', ' + str(FN) + ', ' + str(TP) + ')')
 print('Classification Accuracy = %.2f %%' %classification_accuracy)
 print('Classification Error = %.2f %%' % classification_error)
 print('False Positive Rate = %.2f %%' % false_positive_rate)
+print('False Negative Rate = %.2f %%'% false_negative_rate)
 print('True Positive Rate/Sensitivity/Recall = %.2f %%'% sensitivity)
+
 print('Precision = %.2f %%' % precision)
 print('Specificity = %.2f %%' % specificity)
 print('Area under curve = %.2f %%' % area_under_curve)
