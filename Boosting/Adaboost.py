@@ -63,10 +63,10 @@ Y = array[:,89]
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.25, random_state=42, stratify = Y)
 
 #apply algorithm - 1. Adaboost
-num_trees = 100
+num_trees = 40
 seed = 7
 
-adaboost = AdaBoostClassifier(n_estimators=num_trees, learning_rate=1, random_state = seed)
+adaboost = AdaBoostClassifier(n_estimators=num_trees, learning_rate=0.5, random_state = seed, algorithm = 'SAMME.R')
 cross = cross_val_score(adaboost, X_train, Y_train, cv=10)
 adaboost.fit(X_train, Y_train)
 y_pred = adaboost.predict(X_test)
@@ -131,12 +131,12 @@ print('Precision = %.2f %%' % precision)
 print('Specificity = %.2f %%' % specificity)
 print('Area under curve = %.2f %%' % area_under_curve)
 
-print('\n\n\n-------------------Plot-------------------')
+#plot
 plt.plot(fpr, tpr)
 plt.xlim([0.0, 1.0])
 plt.ylim([0.0, 1.0])
 plt.rcParams['font.size'] = 12
-plt.title('ROC curve for HPSA classifier')
+plt.title('ROC curve for Adaboost Boosting classifier : HPSA dataset')
 plt.xlabel('False Positive Rate (1 - Specificity)')
 plt.ylabel('True Positive Rate (Sensitivity)')
 plt.grid(True)

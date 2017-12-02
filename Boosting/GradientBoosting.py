@@ -62,9 +62,10 @@ Y = array[:,89]
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.25, random_state=42, stratify = Y)
 
 #apply algorithm - 2.Gradient Boosting
-num_trees = 40
-seed = 7
-gradient_boost = GradientBoostingClassifier(n_estimators=num_trees, learning_rate=1, random_state = seed)
+num_trees = 50
+seed = 11
+gradient_boost = GradientBoostingClassifier(n_estimators=num_trees, learning_rate=0.2, random_state = seed,
+                             max_depth = 3, presort='auto')
 cross = cross_val_score(gradient_boost, X_train, Y_train, cv=10)
 gradient_boost.fit(X_train, Y_train)
 y_pred = gradient_boost.predict(X_test)
@@ -116,12 +117,12 @@ print('Precision = %.2f %%' % precision)
 print('Specificity = %.2f %%' % specificity)
 print('Area under curve = %.2f %%' % area_under_curve)
 
-print('\n\n\n-------------------Plot-------------------')
+#plot
 plt.plot(fpr, tpr)
 plt.xlim([0.0, 1.0])
 plt.ylim([0.0, 1.0])
 plt.rcParams['font.size'] = 12
-plt.title('ROC curve for HPSA classifier')
+plt.title('ROC curve for Gradient Boosting classifier : HPSA dataset')
 plt.xlabel('False Positive Rate (1 - Specificity)')
 plt.ylabel('True Positive Rate (Sensitivity)')
 plt.grid(True)

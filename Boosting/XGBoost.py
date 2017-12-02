@@ -62,7 +62,9 @@ Y = array[:,89]
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.25, random_state=42, stratify = Y)
 
 #apply algorithm - 3. XGBoost
-xgboostt = XGBClassifier()#AdaBoostClassifier(n_estimators=num_trees, learning_rate=1, random_state = seed)
+xgboostt = XGBClassifier( max_depth=3, learning_rate=0.1, n_estimators=60, objective='binary:logistic',
+                         booster='gbtree', max_delta_step=1, subsample=1, reg_alpha=1, reg_lambda=0, random_state=7)
+
 cross = cross_val_score(xgboostt, X_train, Y_train, cv=10)
 xgboostt.fit(X_train, Y_train)
 y_pred = xgboostt.predict(X_test)
@@ -114,12 +116,12 @@ print('Precision = %.2f %%' % precision)
 print('Specificity = %.2f %%' % specificity)
 print('Area under curve = %.2f %%' % area_under_curve)
 
-print('\n\n\n-------------------Plot-------------------')
+#plot
 plt.plot(fpr, tpr)
 plt.xlim([0.0, 1.0])
 plt.ylim([0.0, 1.0])
 plt.rcParams['font.size'] = 12
-plt.title('ROC curve for HPSA classifier')
+plt.title('ROC curve for XG-Boosting classifier : HPSA dataset')
 plt.xlabel('False Positive Rate (1 - Specificity)')
 plt.ylabel('True Positive Rate (Sensitivity)')
 plt.grid(True)
