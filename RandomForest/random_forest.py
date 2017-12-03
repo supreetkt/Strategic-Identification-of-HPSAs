@@ -1,3 +1,4 @@
+from matplotlib.style import library
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.datasets import make_classification
 from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve, auc
@@ -25,7 +26,6 @@ attributes.remove('CHSI_State_Abbr')
 target_attribute = ['HPSA_Ind']
 df[target_attribute] = np.where(df[target_attribute] == 1, 0, 1)
 
-# TODO: Standardization of continuous attributes
 binary_attributes = ['Carbon_Monoxide_Ind', 'Ozone_Ind', 'Particulate_Matter_Ind', 'Lead_Ind', 'Community_Health_Center_Ind']
 continuous_attributes = list(set(attributes).difference(set(binary_attributes)))
 
@@ -51,8 +51,8 @@ attributes.remove('HPSA_Ind')
 df = shuffle(df)
 
 # For train test split
-HPSA_input = df.drop('HPSA_Ind', axis=1)
-HPSA_target = df.HPSA_Ind
+HPSA_input = np.array(df.drop('HPSA_Ind', axis=1))
+HPSA_target = np.array(df.HPSA_Ind)
 
 X_train, X_test, Y_train, Y_test = train_test_split(HPSA_input, HPSA_target,
                                                     test_size=0.3,
@@ -60,12 +60,13 @@ X_train, X_test, Y_train, Y_test = train_test_split(HPSA_input, HPSA_target,
                                                     stratify=HPSA_target)
 
 model = RandomForestClassifier(max_depth=20,
-                               max_features="auto",
-                               n_estimators=1000)
+                               n_estimators=200,
+                               n_jobs=-1,
+                               random_state=50,
+                               max_features="auto")
 model.fit(X_train, Y_train)
 
-score = model.score(X_test, Y_test)
-print(score)
+# score = model.score(X_test, Y_test)
 
 y_pred = model.predict(X_test)
 
@@ -77,7 +78,6 @@ FN = confusion[1, 0]
 
 #Classification Accuracy
 classification_accuracy = (TP + TN) / float(TP + TN + FP + FN)*100 #accuracy_score(Y, y_pred)*100
-print("classification_accuracy", classification_accuracy)
 
 #Misclassification Rate/Classification error
 classification_error = (FP + FN) / float(TP + TN + FP + FN)*100
@@ -99,12 +99,12 @@ precision = TP / float(TP + FP)*100
 
 #aoc, roc
 #store the predicted probabilities for class 1
-y_score = model.predict_proba(X_test)[:, 1]
-fpr, tpr, thresholds = roc_curve(Y_test, y_score)
+Y_score = model.predict_proba(X_test)[:, 1]
+fpr, tpr, thresholds = roc_curve(Y_test, Y_score)
 area_under_curve = auc(fpr, tpr) * 100
 
-print("------------------Metrics------------------")
-print("Random Forest-----------------------------------")
+print("----------------Random Forest----------------")
+print('Confusion matrix (TN, FP, FN, TP)= (' +str(TN) + ', ' + str(FP) + ', ' + str(FN) + ', ' + str(TP) + ')')
 print("Classification Accuracy = ", classification_accuracy)
 print("Classification Error = ", classification_error)
 print("False Positive Rate = ", false_positive_rate)
@@ -114,7 +114,6 @@ print("Precision = ", precision)
 print("Specificity = ", specificity)
 print("Area under curve = ", area_under_curve)
 
-print("\n\n\n-------------------Plot-------------------")
 plt.plot(fpr, tpr)
 plt.xlim([0.0, 1.0])
 plt.ylim([0.0, 1.0])
