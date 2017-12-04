@@ -146,5 +146,3 @@ for i in range(0, len(test)):
         result_test_data.append(0)
 
 print('Accuracy:', get_accuracy(result_test_data, test) * 100, "%")
-
-

@@ -1,8 +1,7 @@
-from matplotlib.style import library
+from sklearn import model_selection
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.datasets import make_classification
+from sklearn.grid_search import GridSearchCV
 from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve, auc
-from sklearn.model_selection import cross_val_score
 import matplotlib.pyplot as plt
 
 import pandas as pd
@@ -51,26 +50,60 @@ attributes.remove('HPSA_Ind')
 df = shuffle(df)
 
 # For train test split
-HPSA_input = np.array(df.drop('HPSA_Ind', axis=1))
+HPSA_data = np.array(df.drop('HPSA_Ind', axis=1))
 HPSA_target = np.array(df.HPSA_Ind)
 
-X_train, X_test, Y_train, Y_test = train_test_split(HPSA_input, HPSA_target,
+cv_scores = []
+cv_preds = []
+
+X_train, X_test, Y_train, Y_test = train_test_split(HPSA_data, HPSA_target,
                                                     test_size=0.3,
                                                     random_state=24,
                                                     stratify=HPSA_target)
 
-model = RandomForestClassifier(max_depth=20,
-                               n_estimators=200,
-                               n_jobs=-1,
-                               random_state=50,
-                               max_features="auto")
-model.fit(X_train, Y_train)
+rfc_model = RandomForestClassifier(random_state=50)
+param_grid = { "n_estimators": [200, 300],
+           "criterion": ["gini", "entropy"],
+           "max_features": ["auto", "sqrt"],
+           "max_depth": [10, 20] }
 
-# score = model.score(X_test, Y_test)
+grid_search = GridSearchCV(rfc_model, param_grid, n_jobs=-1, cv=2)
+grid_search.fit(X_train, Y_train)
+print (grid_search.best_params_)
 
-y_pred = model.predict(X_test)
+# Optimized RF classifier
+rfc = RandomForestClassifier(**grid_search.best_params_)
 
-confusion = confusion_matrix(Y_test, y_pred)
+
+kfold = model_selection.KFold(n_splits=10, random_state=123)
+
+# fit the model with training set
+scores = model_selection.cross_val_score(rfc, X_train, Y_train, cv=kfold,
+                                         scoring='accuracy')
+cv_scores.append(scores.mean() * 100)
+print("Train accuracy %0.2f (+/- %0.2f)" % (
+scores.mean() * 100, scores.std() * 100))
+
+# predict on testing set
+Y_preds = model_selection.cross_val_predict(rfc, X_test, Y_test, cv=kfold)
+cv_preds.append(accuracy_score(Y_test, Y_preds) * 100)
+# print("Test accuracy %0.2f" % (100 * accuracy_score(Y_test, Y_preds)))
+
+# model = RandomForestClassifier(max_depth=20,
+#                                n_estimators=200,
+#                                n_jobs=-1,
+#                                random_state=50,
+#                                max_features="auto")
+rfc.fit(X_train, Y_train)
+#
+# # score = model.score(X_test, Y_test)
+# # print(score)
+#
+# y_pred = model.predict(X_test)
+# print ("-----------------------------------------------")
+# print(y_pred)
+#
+confusion = confusion_matrix(Y_test, Y_preds)
 TP = confusion[1, 1]
 TN = confusion[0, 0]
 FP = confusion[0, 1]
@@ -99,7 +132,8 @@ precision = TP / float(TP + FP)*100
 
 #aoc, roc
 #store the predicted probabilities for class 1
-Y_score = model.predict_proba(X_test)[:, 1]
+# proba = model_selection.cross_val_predict(rfc, X_test, Y_test, cv=kfold, method='predict_proba')
+Y_score = rfc.predict_proba(X_test)[:, 1]
 fpr, tpr, thresholds = roc_curve(Y_test, Y_score)
 area_under_curve = auc(fpr, tpr) * 100
 
