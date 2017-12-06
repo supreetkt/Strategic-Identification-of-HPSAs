@@ -341,12 +341,14 @@ model_13 <- glm(formula = HPSA_Ind ~ Obesity + Uninsured  + Prim_Care_Phys_Rate 
                 family = "binomial", data = train)
 
 
+# The VIF and the pvalues for all the variables in the model are satifactory to fix this model as a final model
 summary(model_13)
 library(car)
 vif(model_13)
 
 final_model <- model_13
 
+# The performance for the train data is calculated 
 
 train$predict_prob <- predict(final_model, type = "response")
 
@@ -358,21 +360,29 @@ model_score <- prediction(train$predict_prob, train$HPSA_Ind)
 
 model_perf <- performance(model_score, "tpr", "fpr")
 
-
+# The performance for the test data set is calculated and the ROC curve is calculated 
 model_score_test <- prediction(test$predict_prob, test$HPSA_Ind)
 model_perf_test <- performance(model_score_test, "tpr","fpr")
 
+library(plotROC)
 
+plot(model_perf_test,col = "red", lab = c(10,10,7)) 
 
-plot(model_perf,col = "red", lab = c(10,10,7))
+ggplot(model_perf)+geom_line()
 
+model_perf
 
+# The Confusion matrix for the train and test data is calculated 
 
 library(caret)
 
 confusionMatrix(as.numeric(train$predict_prob > 0.6),train$HPSA_Ind, positive = "1")
 confusionMatrix(as.numeric(test$predict_prob > 0.6),test$HPSA_Ind, positive = "1")
 
+#The Area Under the Curve Value is calculated
+
+auc<-performance(model_score,"auc")
+auc
 
 
 
