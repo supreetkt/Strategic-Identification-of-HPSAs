@@ -1,18 +1,20 @@
 
+install.packages('Information')
 ##########--------------------############
 
-master_data <- read.csv("master_final1.csv")
+master_data <- read.csv("master_final.csv")
 
 summary(master_data)
 str(master_data)
 
-
 master_data$Community_Health_Center_Ind <- as.factor(master_data$Community_Health_Center_Ind)
-master_data$HPSA_Ind <- as.factor(master_data$HPSA_Ind)
 master_data$Carbon_Monoxide_Ind <- as.factor(master_data$Carbon_Monoxide_Ind)
 master_data$Ozone_Ind <- as.factor(master_data$Ozone_Ind) 
 master_data$Particulate_Matter_Ind <- as.factor(master_data$Particulate_Matter_Ind)
 
+iv_data <- master_data
+
+master_data$HPSA_Ind <- as.factor(master_data$HPSA_Ind)
 state_abbr <- model.matrix(~master_data$CHSI_State_Abbr)
 state_abbr <- data.frame(state_abbr)
 state_abbr <- state_abbr[,-1]
@@ -39,7 +41,7 @@ master_frame$Uninsured[which(master_frame$Uninsured> 152234.400)] <- 152234.400
 
 quantile(master_frame$Elderly_Medicare, seq(0,1,0.01))
 
-master_frame$Elderly_Medicare[which(master_frame$Elderly_Medicare> 131508.20)] <- 131508.20
+master_frame$Elderly_Medicare[which(master_frame$Elderly_Medicare> 24156.40)] <- 24156.40
 
 quantile(master_frame$Disabled_Medicare, seq(0,1,0.01))
 
@@ -61,7 +63,13 @@ master_frame <- master_frame[c(-31,-30)]
 
 levels(master_frame$HPSA_Ind) <- c(0,1)
 
-###----------Splitting the Data into Train and Test--------#######
+
+
+boxplot(master_frame$Prim_Care_Phys_Rate, col="royalblue2", xlab = "Primary Phy Rate")
+
+boxplot(master_frame$Elderly_Medicare, xlab = "Elderly Medicare")
+
+  ###----------Splitting the Data into Train and Test--------#######
 
 library(caTools)
 set.seed(100)
@@ -332,7 +340,9 @@ model_13 <- glm(formula = HPSA_Ind ~ Obesity + Uninsured  + Prim_Care_Phys_Rate 
                   master_data.CHSI_State_AbbrWV + master_data.CHSI_State_AbbrWY, 
                 family = "binomial", data = train)
 
+
 summary(model_13)
+library(car)
 vif(model_13)
 
 final_model <- model_13
@@ -340,12 +350,12 @@ final_model <- model_13
 
 train$predict_prob <- predict(final_model, type = "response")
 
-
 test$predict_prob <- predict(final_model, newdata = test, type = "response")
 
 library(ROCR)
 
 model_score <- prediction(train$predict_prob, train$HPSA_Ind)
+
 model_perf <- performance(model_score, "tpr", "fpr")
 
 
