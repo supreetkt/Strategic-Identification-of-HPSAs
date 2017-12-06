@@ -82,7 +82,7 @@ yes_class, no_class = get_rows_for_classes(train, continuous_attributes)
 # Get rows for Yes and No result from training dataset for discrete.
 discrete_yes, discrete_no = get_rows_for_classes(train, discrete_attributes)
 
-# Get Probability of each country and position in a map(dictionary)
+# Get Probability of discrete
 prob_discrete_yes = {}
 prob_discrete_no = {}
 

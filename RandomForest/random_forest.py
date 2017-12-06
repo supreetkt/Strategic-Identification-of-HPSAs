@@ -89,20 +89,8 @@ Y_preds = model_selection.cross_val_predict(rfc, X_test, Y_test, cv=kfold)
 cv_preds.append(accuracy_score(Y_test, Y_preds) * 100)
 # print("Test accuracy %0.2f" % (100 * accuracy_score(Y_test, Y_preds)))
 
-# model = RandomForestClassifier(max_depth=20,
-#                                n_estimators=200,
-#                                n_jobs=-1,
-#                                random_state=50,
-#                                max_features="auto")
 rfc.fit(X_train, Y_train)
-#
-# # score = model.score(X_test, Y_test)
-# # print(score)
-#
-# y_pred = model.predict(X_test)
-# print ("-----------------------------------------------")
-# print(y_pred)
-#
+
 confusion = confusion_matrix(Y_test, Y_preds)
 TP = confusion[1, 1]
 TN = confusion[0, 0]
