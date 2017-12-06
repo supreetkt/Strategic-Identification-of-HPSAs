@@ -1,5 +1,16 @@
+#Set the working directory to the Preprocessing directory where there is a file called master_final.csv
 
-install.packages('Information')
+install.packages("car")
+install.packages("Hmisc")
+install.packages("ROCR")
+install.packages("Caret")
+
+library(car)
+library(Hmisc)
+library(ROCR)
+library(caret)
+library(caTools)
+
 ##########--------------------############
 
 master_data <- read.csv("master_final.csv")
