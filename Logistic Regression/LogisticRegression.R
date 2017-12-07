@@ -1,5 +1,7 @@
 #Set the working directory to the Preprocessing directory where there is a file called master_final.csv
 
+setwd("D:/ML/ML Project/HPSA/ML-HPSA-Pandas/Preprocessing")
+
 install.packages("car")
 install.packages("Hmisc")
 install.packages("ROCR")
@@ -74,8 +76,6 @@ master_frame <- master_frame[c(-31,-30)]
 
 levels(master_frame$HPSA_Ind) <- c(0,1)
 
-
-
 boxplot(master_frame$Prim_Care_Phys_Rate, col="royalblue2", xlab = "Primary Phy Rate")
 
 boxplot(master_frame$Elderly_Medicare, xlab = "Elderly Medicare")
@@ -91,6 +91,7 @@ test = master_frame[!(split_master_frame),]
 
 summary(train$HPSA_Ind)
 class(train$HPSA_Ind)
+
 #--------------------Checkpoint IV - Modeling  --------------------------------------------#
 
 
@@ -394,7 +395,3 @@ confusionMatrix(as.numeric(test$predict_prob > 0.6),test$HPSA_Ind, positive = "1
 
 auc<-performance(model_score,"auc")
 auc
-
-
-
-

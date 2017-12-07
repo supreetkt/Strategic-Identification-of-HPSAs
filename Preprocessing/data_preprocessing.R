@@ -52,6 +52,8 @@ master_data$HPSA_Ind <- as.factor(master_data$HPSA_Ind)
 str(master_data$HPSA_Ind)
 summary(master_data$HPSA_Ind)
 
+#Converting the missing values into NA values for analysis
+
 master_data$No_Exercise[which(master_data$No_Exercise == -1111.1)] <- NA
 master_data$Obesity[which(master_data$Obesity == -1111.1)] <- NA
 master_data$High_Blood_Pres[which(master_data$High_Blood_Pres == -1111.1)] <- NA
@@ -91,8 +93,8 @@ master_data$All_Death[which(master_data$All_Death == -1111.1)] <- NA
 master_data$Health_Status[which(master_data$Health_Status == -1111.1)] <- NA
 master_data$ALE[which(master_data$ALE == -2222.2)] <- NA
 
-#Master
-
+#The Master data is spillted out to perform the Missing Value Interpretation
+# Missing values are predicted using Random Forest
 master_data <- master_data[c(-1,-2,-3,-4,-6)]
 
 state_labels <- master_data[1]
@@ -104,5 +106,6 @@ master_data <- master_forest$ximp
 
 master_data <- cbind(state_labels,master_data)
 
+write.csv(master_data,file = "master_final1.csv")
 
-write.csv(master,file = "master_final1.csv")
+# The final master file is generated.
